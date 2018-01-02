@@ -31,6 +31,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	USpringArmComponent* CameraBoom;
+
+	void BeginCrouch();
+
+	void EndCrouch();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
