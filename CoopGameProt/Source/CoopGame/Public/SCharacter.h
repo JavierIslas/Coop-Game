@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
 UCLASS()
 class COOPGAME_API ASCharacter : public ACharacter
 {
@@ -15,10 +17,20 @@ public:
 	// Sets default values for this character's properties
 	ASCharacter();
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void MoveForware(float Value);
+
+	void MoveRight(float Value);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	USpringArmComponent* CameraBoom;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
