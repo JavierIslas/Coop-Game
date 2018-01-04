@@ -7,12 +7,13 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
+
+static int32 DebugWeaponDrawing = 0;
+FAutoConsoleVariableRef CVARDebugWeaponDrawing(TEXT("COOP.DebugWeapons"), DebugWeaponDrawing, TEXT("Draw DebugLines for Weapons"), ECVF_Cheat);
+
 // Sets default values
 ASweapon::ASweapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
 
@@ -20,12 +21,6 @@ ASweapon::ASweapon()
 	TargetName = "BeamEnd";
 }
 
-// Called when the game starts or when spawned
-void ASweapon::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
 
 void ASweapon::Fire()
 {
@@ -56,33 +51,43 @@ void ASweapon::Fire()
 			}
 			TracerEndPoint = Hit.ImpactPoint;
 		}
-
-		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Red, false, 1.0f, 0, 1.0f);
-	
-		if (MuzzleEffect)
+		if (DebugWeaponDrawing > 0)
 		{
-			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, SocketName);
+			DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::Red, false, 1.0f, 0, 1.0f);
 		}
 
-		
-		if (SmokeEffect)
+		PlayFireEffect(TracerEndPoint);
+	}
+}
+
+void ASweapon::PlayFireEffect(FVector TraceEnd)
+{
+	if (MuzzleEffect)
+	{
+		UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComp, SocketName);
+	}
+
+
+	if (SmokeEffect)
+	{
+		FVector MuzzleLocation = MeshComp->GetSocketLocation(SocketName);
+		UParticleSystemComponent* Tracer = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SmokeEffect, MuzzleLocation);
+		if (Tracer)
 		{
-			FVector MuzzleLocation = MeshComp->GetSocketLocation(SocketName);
-			UParticleSystemComponent* Tracer  = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SmokeEffect, MuzzleLocation);
-			if(Tracer)
-			{
-				Tracer->SetVectorParameter(TargetName, TracerEndPoint);
-			}
+			Tracer->SetVectorParameter(TargetName, TraceEnd);
 		}
 	}
 
-	
+	APawn* Owner = Cast<APawn>(GetOwner());
+	if (Owner)
+	{
+		APlayerController* PC = Cast<APlayerController>(Owner->GetController());
+		if (PC)
+		{
+			PC->ClientPlayCameraShake(FireCamShake);
+		}
+	}
 }
 
-// Called every frame
-void ASweapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
-}
 
