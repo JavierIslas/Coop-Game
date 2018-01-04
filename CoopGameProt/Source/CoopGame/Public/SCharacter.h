@@ -57,7 +57,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ASweapon> StartedWeaponClass;
 
-	void Fire();
+	void StartFire();
+
+	void StopFire();
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponSocketName;

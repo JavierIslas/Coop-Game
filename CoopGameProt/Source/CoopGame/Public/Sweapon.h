@@ -22,6 +22,10 @@ public:
 
 protected:
 
+	virtual void BeginPlay();
+
+	void Fire();
+
 	void PlayFireEffect(FVector TraceEnd);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
@@ -41,7 +45,10 @@ protected:
 	UParticleSystem* MuzzleEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	UParticleSystem* ImpactEffect;
+	UParticleSystem* DefaultImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* FleshImpactEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* SmokeEffect;
@@ -49,10 +56,24 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UCameraShake> FireCamShake;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float BaseDamage;
+
+	FTimerHandle TimerHandle_TimeBetweenShots;
+
+	float LastFireTime;
+
+	// Bullet Per Minute
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float RateOfFire;
+
+	float TimeBetweenShots;
+
 public:	
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void Fire();
+	void StartFire();
+
+	void StopFire();
 	
 	
 };
