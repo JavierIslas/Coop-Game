@@ -6,9 +6,11 @@
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
+
 class UCameraComponent;
 class USpringArmComponent;
 class ASweapon;
+class USHealtComponent;
 
 UCLASS()
 class COOPGAME_API ASCharacter : public ACharacter
@@ -33,6 +35,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	USHealtComponent* HealthComponent;
 
 	void BeginCrouch();
 
@@ -63,6 +68,12 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponSocketName;
+
+	UFUNCTION()
+	void OnHealthChange(USHealtComponent* HealthComponent, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	bool bDied;
 
 public:	
 	// Called every frame
