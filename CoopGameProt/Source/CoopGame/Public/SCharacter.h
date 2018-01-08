@@ -70,7 +70,7 @@ protected:
 	FName WeaponSocketName;
 
 	UFUNCTION()
-	void OnHealthChange(USHealtComponent* HealthComponent, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void OnHealthChange(USHealtComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	UPROPERTY(BlueprintReadOnly, Category = "Player")
 	bool bDied;
