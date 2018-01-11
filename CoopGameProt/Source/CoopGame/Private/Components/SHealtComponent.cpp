@@ -2,7 +2,6 @@
 
 #include "SHealtComponent.h"
 
-
 // Sets default values for this component's properties
 USHealtComponent::USHealtComponent()
 {
@@ -36,6 +35,21 @@ void USHealtComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, c
 	UE_LOG(LogTemp, Log, TEXT("Health Changed : %s"), *FString::SanitizeFloat(Health));
 
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
+}
+
+void USHealtComponent::Heal(float HealAmount)
+{
+	if (HealAmount <= 0.0f || Health <= 0.0f)
+	{
+		return;
+	}
+
+	Health = FMath::Clamp(Health + HealAmount, 0.0f, DefaultHealth);
+
+	UE_LOG(LogTemp, Log, TEXT("Health Changed : %s (+%s)"), *FString::SanitizeFloat(Health), *FString::SanitizeFloat(HealAmount));
+
+	OnHealthChanged.Broadcast(this, Health, HealAmount, nullptr, nullptr, nullptr);
+
 }
 
 
