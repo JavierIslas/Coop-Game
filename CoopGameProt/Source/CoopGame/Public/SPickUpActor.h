@@ -24,18 +24,18 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-		USphereComponent* SphereComp;
+	USphereComponent* SphereComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-		UDecalComponent* DecalComp;
+	UDecalComponent* DecalComp;
 
-	UPROPERTY(EditInstanceOnly, Category = "PickupActor")
-		TSubclassOf<ASPowerupActor> PowerUpClass;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "PickupActor")
+	TSubclassOf<ASPowerupActor> PowerUpClass;
 
 	ASPowerupActor* PowerUpInstance;
 
-	UPROPERTY(EditInstanceOnly, Category = "PickupActor")
-		float CooldownDuration;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "PickupActor")
+	float CooldownDuration;
 
 	FTimerHandle TimerHandle_RespawnTimer;
 
