@@ -57,6 +57,7 @@ protected:
 
 	void ZoomOut();
 
+	UPROPERTY(Replicated)
 	ASweapon* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
@@ -72,7 +73,7 @@ protected:
 	UFUNCTION()
 	void OnHealthChange(USHealtComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
 	bool bDied;
 
 public:	

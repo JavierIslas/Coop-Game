@@ -8,6 +8,7 @@
 #include "CoopGame.h"
 #include "Sweapon.h"
 #include "SHealtComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -46,17 +47,22 @@ void ASCharacter::BeginPlay()
 
 	DefaultFOV = Camera->FieldOfView;
 
-	//Spawn default Weapon
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	CurrentWeapon = GetWorld()->SpawnActor<ASweapon>(StartedWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-	if (CurrentWeapon)
+	if (Role == ROLE_Authority)
 	{
-		CurrentWeapon->SetOwner(this);
-		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+		//Spawn default Weapon
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		CurrentWeapon = GetWorld()->SpawnActor<ASweapon>(StartedWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->SetOwner(this);
+			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+		}
+
+		HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChange);
 	}
+
 	
-	HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChange);
 }
 
 void ASCharacter::MoveForware(float Value)
@@ -162,7 +168,14 @@ FVector ASCharacter::GetPawnViewLocation() const
 	{
 		return Camera->GetComponentLocation();
 	}
-
 	return Super::GetPawnViewLocation();
+}
+
+void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASCharacter, CurrentWeapon);
+	DOREPLIFETIME(ASCharacter, bDied);
 }
 

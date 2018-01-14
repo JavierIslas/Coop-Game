@@ -1,11 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SHealtComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 USHealtComponent::USHealtComponent()
 {
 	DefaultHealth = 100;
+
+	SetIsReplicated(true);
 }
 
 
@@ -14,10 +17,13 @@ void USHealtComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AActor* Owner = GetOwner();
-	if (Owner)
+	if (GetOwnerRole() == ROLE_Authority)
 	{
-		Owner->OnTakeAnyDamage.AddDynamic(this, &USHealtComponent::HandleTakeAnyDamage);
+		AActor* Owner = GetOwner();
+		if (Owner)
+		{
+			Owner->OnTakeAnyDamage.AddDynamic(this, &USHealtComponent::HandleTakeAnyDamage);
+		}
 	}
 
 	Health = DefaultHealth;
@@ -37,6 +43,12 @@ void USHealtComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, c
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
 }
 
+void USHealtComponent::OnRep_Health(float OldHealth)
+{
+	float Damage = Health - OldHealth;
+	OnHealthChanged.Broadcast(this, Health, FMath::Abs(Damage), nullptr, nullptr, nullptr);
+}
+
 void USHealtComponent::Heal(float HealAmount)
 {
 	if (HealAmount <= 0.0f || Health <= 0.0f)
@@ -53,3 +65,9 @@ void USHealtComponent::Heal(float HealAmount)
 }
 
 
+void USHealtComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USHealtComponent, Health);
+}

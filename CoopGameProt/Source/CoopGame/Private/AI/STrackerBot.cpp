@@ -10,6 +10,7 @@
 #include "SCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Sound/SoundCue.h"
+#include "Net/UnrealNetwork.h"
 
 
 
@@ -51,8 +52,11 @@ ASTrackerBot::ASTrackerBot()
 void ASTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
-	
-    NextPathPoint = GetNextPathPoint();
+	if (Role == ROLE_Authority)
+	{
+		NextPathPoint = GetNextPathPoint();
+	}
+   
 
 }
 
@@ -91,12 +95,25 @@ void ASTrackerBot::SelfDestruct()
 		return;
 	}
 	bExploded = true;
+	
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
-	TArray<AActor* > IgnoredActors;
-	IgnoredActors.Add(this);
-	UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
+	
 	UGameplayStatics::PlaySoundAtLocation(this, DestructionSound, GetActorLocation());
-	Destroy();
+	
+	//Hide Actor to Give time to replicate destruction
+	MeshComponent->SetVisibility(false);
+	//MeshComponent->SetCollisionEnabled(CollisionEnabled::NoCollision);
+
+	if (Role == ROLE_Authority)
+	{
+		TArray<AActor* > IgnoredActors;
+		IgnoredActors.Add(this);
+		UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
+		
+		//Destroied after x sec to give time to replicate
+		SetLifeSpan(2.0f);
+	}	
+
 }
 
 void ASTrackerBot::DamageSelf()
@@ -109,30 +126,36 @@ void ASTrackerBot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	float DistanceToTarget = (GetActorLocation() - NextPathPoint).Size();
-	if (DistanceToTarget <= RequireDistanceToTarget)
+	if (Role == ROLE_Authority && !bExploded)
 	{
-		NextPathPoint = GetNextPathPoint();
+		float DistanceToTarget = (GetActorLocation() - NextPathPoint).Size();
+		if (DistanceToTarget <= RequireDistanceToTarget)
+		{
+			NextPathPoint = GetNextPathPoint();
 
-	}
-	else
-	{
-		FVector ForceDirection = NextPathPoint - GetActorLocation();
-		ForceDirection.Normalize();
-		ForceDirection *= MovementForce;
+		}
+		else
+		{
+			FVector ForceDirection = NextPathPoint - GetActorLocation();
+			ForceDirection.Normalize();
+			ForceDirection *= MovementForce;
 
-		MeshComponent->AddForce(ForceDirection, NAME_None, bUseVelocityChange);
+			MeshComponent->AddForce(ForceDirection, NAME_None, bUseVelocityChange);
+		}
 	}
 }
 
 void ASTrackerBot::NotifyActorBeginOverlap(AActor * OtherActor)
 {
-	if (!bStartedSelfDestruction)
+	if (!bStartedSelfDestruction && !bExploded)
 	{
 		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
 		if (PlayerPawn)
 		{
-			GetWorldTimerManager().SetTimer(TimerHandel_SelfDamage, this, &ASTrackerBot::DamageSelf, SelfDamageInterval, true, 0.0f);
+			if (Role == ROLE_Authority)
+			{
+				GetWorldTimerManager().SetTimer(TimerHandel_SelfDamage, this, &ASTrackerBot::DamageSelf, SelfDamageInterval, true, 0.0f);
+			}
 			bStartedSelfDestruction = true;
 
 			UGameplayStatics::SpawnSoundAttached(SelfDestructSound, RootComponent);
