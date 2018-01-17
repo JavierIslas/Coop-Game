@@ -24,6 +24,7 @@ ASweapon::ASweapon()
 	TargetName = "BeamEnd";
 	BaseDamage = 20.0f;
 	RateOfFire = 200;
+	BulletSpread = 2.0f;
 
 	//Network funtionality Configuration
 	SetReplicates(true);
@@ -52,7 +53,12 @@ void ASweapon::Fire()
 		FVector EyeLocation;
 		FRotator EyeRotation;
 		Owner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+
+		//BulletSpread Calcualtion
 		FVector ShotDirection = EyeRotation.Vector();
+		float HalfRad = FMath::DegreesToRadians(BulletSpread);
+		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
+		//
 		FVector TraceEnd = EyeLocation + (EyeRotation.Vector() * 10000);
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(Owner);
