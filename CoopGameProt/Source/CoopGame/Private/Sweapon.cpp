@@ -59,6 +59,7 @@ void ASweapon::Fire()
 		float HalfRad = FMath::DegreesToRadians(BulletSpread);
 		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
 		//
+		
 		FVector TraceEnd = EyeLocation + (EyeRotation.Vector() * 10000);
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(Owner);
@@ -82,7 +83,7 @@ void ASweapon::Fire()
 				actualDamage *= 4.0f;
 			}
 
-			UGameplayStatics::ApplyPointDamage(HitActor, actualDamage, ShotDirection, Hit, Owner->GetInstigatorController(), this, DamageType);
+			UGameplayStatics::ApplyPointDamage(HitActor, actualDamage, ShotDirection, Hit, Owner->GetInstigatorController(), Owner, DamageType);
 
 			PlayImpactEffect(SurfaceType, Hit.ImpactPoint);
 

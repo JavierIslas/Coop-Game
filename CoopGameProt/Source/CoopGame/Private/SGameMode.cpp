@@ -86,6 +86,7 @@ void ASGameMode::CheckWaveState()
 	}
 
 	bool bIsAnyBotAlive = false;
+
 	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
 	{
 		APawn* TestPawn = It->Get();
@@ -100,7 +101,6 @@ void ASGameMode::CheckWaveState()
 			bIsAnyBotAlive = true;
 			break;
 		}
-
 	}
 
 	if (!bIsAnyBotAlive)

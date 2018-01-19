@@ -81,6 +81,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	USoundCue* DestructionSound;
 
+	FTimerHandle TimerHandle_RefreshPath;
+
+	void RefreshPath();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;	
