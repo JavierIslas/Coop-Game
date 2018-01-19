@@ -47,6 +47,8 @@ void ASCharacter::BeginPlay()
 
 	DefaultFOV = Camera->FieldOfView;
 
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChange);
+
 	if (Role == ROLE_Authority)
 	{
 		//Spawn default Weapon
@@ -58,8 +60,6 @@ void ASCharacter::BeginPlay()
 			CurrentWeapon->SetOwner(this);
 			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 		}
-
-		HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChange);
 	}
 
 	

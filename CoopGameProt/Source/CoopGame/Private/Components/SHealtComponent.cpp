@@ -50,7 +50,7 @@ void USHealtComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, c
 
 	UE_LOG(LogTemp, Log, TEXT("Health Changed : %s"), *FString::SanitizeFloat(Health));
 
-	bIsDead = true;
+	bIsDead = Health <= 0.0f;
 
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
 

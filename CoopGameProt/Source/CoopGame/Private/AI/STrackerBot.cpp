@@ -29,7 +29,6 @@ ASTrackerBot::ASTrackerBot()
 	RootComponent = MeshComponent;
 
 	HealthComponent = CreateDefaultSubobject<USHealtComponent>("HealthComponent");
-	HealthComponent->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
 
 	bUseVelocityChange = true;
 	MovementForce = 1000;
@@ -55,6 +54,9 @@ ASTrackerBot::ASTrackerBot()
 void ASTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
+
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
+
 	if (Role == ROLE_Authority)
 	{
 		NextPathPoint = GetNextPathPoint();
